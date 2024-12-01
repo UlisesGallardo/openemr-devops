@@ -20,10 +20,11 @@ RUN cp /usr/bin/php82 /usr/bin/php
 # Install composer for openemr package building
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
 
-RUN apk add --no-cache git build-base \
-    && git clone https://github.com/openemr/openemr.git --branch rel-702 --depth 1 \
-    && rm -rf openemr/.git \
-    && cd openemr \
+COPY clinikia-master.zip /tmp/
+RUN apk add --no-cache unzip \
+    && unzip /tmp/clinikia-master.zip -d /tmp/ \
+    && mv /tmp/clinikia-master /var/www/localhost/htdocs/openemr \
+    && cd /var/www/localhost/htdocs/openemr \
     && composer install --no-dev \
     && npm install --unsafe-perm \
     && npm run build \
@@ -61,13 +62,13 @@ RUN chmod 500 openemr.sh ssl.sh xdebug.sh /root/unlock_admin.sh \
     && chmod 000 auto_configure.php /root/unlock_admin.php
 #bring in pieces used for automatic upgrade process
 COPY upgrade/docker-version \
-     upgrade/fsupgrade-1.sh \
-     upgrade/fsupgrade-2.sh \
-     upgrade/fsupgrade-3.sh \
-     upgrade/fsupgrade-4.sh \
-     upgrade/fsupgrade-5.sh \
-     upgrade/fsupgrade-6.sh \
-     /root/
+    upgrade/fsupgrade-1.sh \
+    upgrade/fsupgrade-2.sh \
+    upgrade/fsupgrade-3.sh \
+    upgrade/fsupgrade-4.sh \
+    upgrade/fsupgrade-5.sh \
+    upgrade/fsupgrade-6.sh \
+    /root/
 RUN chmod 500 \
     /root/fsupgrade-1.sh \
     /root/fsupgrade-2.sh \
